@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Editor de Equipos</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <h1>Editor de Equipos</h1>
+
+  <div id="team-editor">
+    <h2>Equipo A</h2>
+    <div id="teamA"></div>
+    <button onclick="addPlayer('A')">Añadir Jugador</button>
+
+    <h2>Equipo B</h2>
+    <div id="teamB"></div>
+    <button onclick="addPlayer('B')">Añadir Jugador</button>
+  </div>
+
+  <button onclick="simulateMatch()">¡Enfrentar Equipos!</button>
+
+  <div id="result"></div>
+
+  <script src="script.js"></script>
+</body>
+</html>

@@ -1,0 +1,13 @@
+body {
+  font-family: Arial, sans-serif;
+  padding: 20px;
+}
+
+#team-editor {
+  display: flex;
+  gap: 40px;
+}
+
+button {
+  margin-top: 10px;
+}
