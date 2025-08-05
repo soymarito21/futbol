@@ -1,4 +1,4 @@
-/* Estilo general */
+/* Reset */
 * {
   margin: 0;
   padding: 0;
@@ -8,104 +8,105 @@
 html, body {
   height: 100%;
   font-family: 'Open Sans', sans-serif;
+  background-color: #0a0f1c;
   overflow: hidden;
 }
 
-/* HERO con fondo dinámico */
-.hero {
+/* Fondo con imagen difuminada y overlay */
+.landing {
   position: relative;
   width: 100%;
   height: 100vh;
-  background: url('https://images.unsplash.com/photo-1604275682255-3340b3f1f1c3?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&q=80') no-repeat center center / cover;
+  background: radial-gradient(ellipse at center, rgba(0,0,0,0.9), rgba(0,0,0,1));
   display: flex;
   align-items: center;
   justify-content: center;
-  animation: zoomIn 10s ease-in-out infinite alternate;
+  color: white;
+  text-align: center;
+  overflow: hidden;
 }
 
-/* Animación fondo */
-@keyframes zoomIn {
-  from {
-    background-size: 100%;
-  }
-  to {
-    background-size: 110%;
-  }
-}
-
-/* Capa oscura para contraste */
-.overlay {
+.blur-bg {
+  background: url('https://images.unsplash.com/photo-1604275682255-3340b3f1f1c3?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&q=80') no-repeat center center/cover;
+  filter: blur(8px) brightness(0.6);
   position: absolute;
   top: 0; left: 0;
   width: 100%; height: 100%;
-  background: rgba(0, 0, 0, 0.6);
-  z-index: 1;
+  z-index: 0;
+  animation: slowZoom 15s ease-in-out infinite alternate;
 }
 
-/* Contenido centrado */
+/* Animación lenta de fondo */
+@keyframes slowZoom {
+  from { transform: scale(1); }
+  to { transform: scale(1.05); }
+}
+
 .content {
   position: relative;
   z-index: 2;
-  text-align: center;
-  color: #fff;
+  max-width: 800px;
   padding: 2rem;
+  animation: fadeIn 1.5s ease-out forwards;
+  opacity: 0;
+  transform: translateY(20px);
 }
 
-.content h1 {
+@keyframes fadeIn {
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Título tipo FIFA */
+.logo {
   font-family: 'Orbitron', sans-serif;
   font-size: 3.5rem;
   margin-bottom: 1rem;
-  text-shadow: 2px 2px 10px rgba(0,0,0,0.6);
+  color: #00ff88;
+  text-shadow: 2px 2px 10px rgba(0,255,136,0.5);
 }
 
-.content p {
-  font-size: 1.2rem;
-  margin-bottom: 2rem;
-  color: #ddd;
+/* Frase llamativa */
+.tagline {
+  font-size: 1.3rem;
+  margin-bottom: 2.5rem;
+  color: #ccc;
 }
 
-/* Botón animado */
-.start-button {
-  background: linear-gradient(135deg, #00ff88, #0077ff);
-  color: white;
-  padding: 0.9rem 2.2rem;
-  text-decoration: none;
-  font-size: 1rem;
+/* Botón moderno */
+.btn-start {
+  display: inline-block;
+  padding: 0.9rem 2.5rem;
   font-weight: bold;
+  font-size: 1rem;
+  color: white;
+  background: linear-gradient(135deg, #00ff88, #0077ff);
   border-radius: 40px;
+  text-decoration: none;
+  box-shadow: 0 0 20px rgba(0,255,136,0.4);
   transition: all 0.3s ease;
-  box-shadow: 0 0 20px rgba(0,255,136,0.5);
 }
 
-.start-button:hover {
+.btn-start:hover {
   background: linear-gradient(135deg, #0077ff, #00ff88);
   transform: scale(1.05);
   box-shadow: 0 0 30px rgba(0,255,136,0.8);
 }
 
-/* Animación de entrada */
-.animate-fade {
-  animation: fadeIn 1.5s ease-out;
-}
-
-@keyframes fadeIn {
-  from { opacity: 0; transform: translateY(20px); }
-  to { opacity: 1; transform: translateY(0); }
-}
-
 /* Responsive */
 @media screen and (max-width: 768px) {
-  .content h1 {
-    font-size: 2.2rem;
+  .logo {
+    font-size: 2.4rem;
   }
 
-  .content p {
+  .tagline {
     font-size: 1rem;
   }
 
-  .start-button {
-    padding: 0.7rem 1.5rem;
-    font-size: 0.9rem;
+  .btn-start {
+    padding: 0.7rem 1.8rem;
+    font-size: 0.95rem;
   }
 }
-
