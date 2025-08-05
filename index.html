@@ -1,15 +1,96 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8">
-  <title>Fantasy Team</title>
-  <link rel="stylesheet" href="style.css">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Fantasy Team Builder</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@600&display=swap');
+
+    * {
+      margin: 0; padding: 0; box-sizing: border-box;
+    }
+
+    body, html {
+      height: 100%;
+      font-family: 'Poppins', sans-serif;
+      overflow: hidden;
+    }
+
+    /* Fondo con animación de movimiento suave */
+    body {
+      background: url('https://images.unsplash.com/photo-1518098268026-4e89f1a2cd8e?auto=format&fit=crop&w=1920&q=80') no-repeat center center fixed;
+      background-size: cover;
+      animation: backgroundMove 30s linear infinite;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      color: #00ff88;
+      text-shadow: 0 0 15px #00ff88;
+      flex-direction: column;
+      padding: 20px;
+      text-align: center;
+    }
+
+    @keyframes backgroundMove {
+      0% { background-position: center top; }
+      50% { background-position: center bottom; }
+      100% { background-position: center top; }
+    }
+
+    h1 {
+      font-size: 4rem;
+      margin-bottom: 20px;
+      letter-spacing: 2px;
+    }
+
+    p {
+      font-size: 1.5rem;
+      max-width: 600px;
+      margin-bottom: 40px;
+      color: #a0ffbb;
+      text-shadow: 0 0 10px #00ff88;
+    }
+
+    a.btn {
+      text-decoration: none;
+      color: #000;
+      background: linear-gradient(135deg, #00ff88, #0077ff);
+      padding: 15px 60px;
+      border-radius: 50px;
+      font-weight: 700;
+      font-size: 1.3rem;
+      box-shadow: 0 0 25px #00ff88;
+      transition: all 0.3s ease;
+      user-select: none;
+    }
+
+    a.btn:hover {
+      background: linear-gradient(135deg, #0077ff, #00ff88);
+      box-shadow: 0 0 50px #0077ff;
+      transform: scale(1.05);
+    }
+
+    /* Responsive */
+    @media (max-width: 600px) {
+      h1 {
+        font-size: 2.5rem;
+      }
+      p {
+        font-size: 1.1rem;
+        padding: 0 10px;
+      }
+      a.btn {
+        padding: 12px 40px;
+        font-size: 1rem;
+      }
+    }
+  </style>
 </head>
 <body>
-  <div>
-    <h1>Fantasy Team Builder ⚽</h1>
-    <a href="editor.html">Crear mi equipo</a>
-  </div>
+  <h1>Fantasy Team Builder ⚽</h1>
+  <p>Crea tu equipo ideal, ajusta valoraciones y desafía a otros en emocionantes enfrentamientos.</p>
+  <a href="editor.html" class="btn">Crear mi equipo</a>
 </body>
 </html>
 
