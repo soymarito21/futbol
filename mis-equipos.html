@@ -1,155 +1,92 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Mis Equipos Guardados</title>
-<style>
-  body {
-    font-family: 'Poppins', sans-serif;
-    background: #0a0a0a;
-    color: white;
-    margin: 0; padding: 2rem;
-  }
-  h1 {
-    color: #00ff88;
-    text-align: center;
-  }
-  .team {
-    background: #1a1a1a;
-    border-radius: 8px;
-    margin: 1rem auto;
-    max-width: 600px;
-    padding: 1rem;
-  }
-  .team-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-  }
-  button {
-    background: #00ff88;
-    border: none;
-    border-radius: 5px;
-    padding: 5px 10px;
-    cursor: pointer;
-    margin-left: 5px;
-  }
-  button.delete {
-    background: #ff4444;
-  }
-  .player {
-    margin-left: 10px;
-  }
-  #user-info {
-    text-align: center;
-    margin-bottom: 20px;
-  }
-  #btnLogout {
-    background: red;
-    color: white;
-    width: auto;
-    padding: 5px 10px;
-    border-radius: 5px;
-    cursor: pointer;
-    margin-top: 5px;
-  }
-</style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mis Equipos</title>
+  <style>
+    body {
+      font-family: 'Poppins', sans-serif;
+      background: #0a0a0a;
+      color: white;
+      padding: 2rem;
+    }
+    h1 {
+      text-align: center;
+      color: #00ff88;
+      margin-bottom: 2rem;
+    }
+    .team {
+      background: #1a1a1a;
+      padding: 1rem;
+      border-radius: 8px;
+      margin-bottom: 1rem;
+    }
+    .team h2 {
+      margin: 0 0 1rem;
+      color: #00ff88;
+    }
+    .player {
+      margin-left: 1rem;
+      padding: 0.5rem;
+    }
+    button {
+      background: #00ff88;
+      color: black;
+      padding: 6px 12px;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      margin-top: 1rem;
+    }
+    button:hover {
+      background: #00cc6a;
+    }
+  </style>
 </head>
 <body>
-<h1>Mis Equipos Guardados</h1>
-<div id="user-info">
-  <button id="btnLogin">Iniciar sesión con Google</button>
-</div>
+  <h1>📋 Mis Equipos Guardados</h1>
+  <div id="teamsContainer"></div>
 
-<div id="teamsContainer"></div>
+  <script>
+    const loggedUser = localStorage.getItem('loggedUser');
 
-<script type="module">
-  import { auth, provider, signInWithPopup, signOut, onAuthStateChanged, db, collection, getDocs, doc, updateDoc, deleteDoc, query, where } from './firebase.js';
-
-  const userInfo = document.getElementById('user-info');
-  const btnLogin = document.getElementById('btnLogin');
-  const teamsContainer = document.getElementById('teamsContainer');
-
-  let currentUser = null;
-
-  btnLogin.onclick = async () => {
-    try {
-      const result = await signInWithPopup(auth, provider);
-      currentUser = result.user;
-      loadTeams();
-    } catch (e) {
-      alert("Error al iniciar sesión: " + e.message);
-    }
-  };
-
-  onAuthStateChanged(auth, user => {
-    if (user) {
-      currentUser = user;
-      userInfo.innerHTML = `
-        <p>👤 Hola, ${user.displayName}</p>
-        <button id="btnLogout">Cerrar sesión</button>
-      `;
-      document.getElementById('btnLogout').onclick = () => signOut(auth);
-      loadTeams();
+    if (!loggedUser) {
+      document.body.innerHTML = '<p style="text-align:center">Debes iniciar sesión para ver tus equipos.</p>';
     } else {
-      currentUser = null;
-      userInfo.innerHTML = `<button id="btnLogin">Iniciar sesión con Google</button>`;
-      document.getElementById('btnLogin').onclick = btnLogin.onclick;
-      teamsContainer.innerHTML = '';
-    }
-  });
+      const teams = JSON.parse(localStorage.getItem(`teams_${loggedUser}`)) || [];
+      const container = document.getElementById('teamsContainer');
 
-  async function loadTeams() {
-    if (!currentUser) return;
-    teamsContainer.innerHTML = '<p>Cargando equipos...</p>';
-    try {
-      const q = query(collection(db, "teams"), where("userId", "==", currentUser.uid));
-      const querySnapshot = await getDocs(q);
-      if (querySnapshot.empty) {
-        teamsContainer.innerHTML = '<p>No tienes equipos guardados.</p>';
-        return;
+      if (teams.length === 0) {
+        container.innerHTML = '<p style="text-align:center">No has guardado ningún equipo todavía.</p>';
+      } else {
+        teams.forEach((team, index) => {
+          const teamDiv = document.createElement('div');
+          teamDiv.className = 'team';
+
+          let playersHTML = '';
+          team.players.forEach(p => {
+            playersHTML += `<div class="player">${p.name} | ${p.nation} | ${p.position} | ⭐ ${p.rating}</div>`;
+          });
+
+          teamDiv.innerHTML = `
+            <h2>${team.name}</h2>
+            ${playersHTML}
+            <button onclick="deleteTeam(${index})">🗑️ Borrar equipo</button>
+          `;
+
+          container.appendChild(teamDiv);
+        });
       }
-      teamsContainer.innerHTML = '';
-      querySnapshot.forEach(docSnap => {
-        const team = docSnap.data();
-        const teamDiv = document.createElement('div');
-        teamDiv.className = 'team';
-        teamDiv.innerHTML = `
-          <div class="team-header">
-            <strong>${team.teamName}</strong>
-            <div>
-              <button onclick="editTeam('${docSnap.id}')">✏️ Editar</button>
-              <button class="delete" onclick="deleteTeam('${docSnap.id}')">🗑️ Borrar</button>
-            </div>
-          </div>
-          <div>
-            ${team.players.map(p => `<div class="player">${p.name} | ${p.nation} | ${p.position} | ⭐ ${p.rating}</div>`).join('')}
-          </div>
-        `;
-        teamsContainer.appendChild(teamDiv);
-      });
-    } catch (e) {
-      teamsContainer.innerHTML = `<p>Error cargando equipos: ${e.message}</p>`;
     }
-  }
 
-  window.editTeam = async (id) => {
-    // Para editar, simplemente abrimos editor.html con el id como query param
-    window.location.href = `editor.html?teamId=${id}`;
-  };
-
-  window.deleteTeam = async (id) => {
-    if (!confirm('¿Seguro que quieres borrar este equipo?')) return;
-    try {
-      await deleteDoc(doc(db, "teams", id));
-      alert('Equipo borrado');
-      loadTeams();
-    } catch (e) {
-      alert('Error borrando equipo: ' + e.message);
+    function deleteTeam(index) {
+      const teams = JSON.parse(localStorage.getItem(`teams_${loggedUser}`)) || [];
+      teams.splice(index, 1);
+      localStorage.setItem(`teams_${loggedUser}`, JSON.stringify(teams));
+      location.reload();
     }
-  };
-</script>
+  </script>
 </body>
 </html>
 
