@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Mis Equipos</title>
+  <style>
+    body {
+      font-family: 'Poppins', sans-serif;
+      background: #0a0a0a;
+      color: white;
+      padding: 2rem;
+    }
+    h1 {
+      text-align: center;
+      color: #00ff88;
+      margin-bottom: 2rem;
+    }
+    .team-card {
+      background: #1a1a1a;
+      padding: 15px;
+      margin-bottom: 20px;
+      border-radius: 10px;
+    }
+    .team-card h2 {
+      margin-bottom: 10px;
+      color: #00cc6a;
+    }
+    .player {
+      margin-left: 15px;
+    }
+    a {
+      display: inline-block;
+      margin-top: 1rem;
+      color: #00ff88;
+    }
+  </style>
+</head>
+<body>
+  <h1>📋 Mis Equipos Guardados</h1>
+  <div id="teamsContainer"></div>
+  <a href="editor.html">⬅ Volver al creador de equipos</a>
+
+  <script>
+    const teams = JSON.parse(localStorage.getItem('teams')) || [];
+    const container = document.getElementById('teamsContainer');
+
+    if (teams.length === 0) {
+      container.innerHTML = "<p>No tienes equipos guardados.</p>";
+    } else {
+      teams.forEach(team => {
+        const card = document.createElement('div');
+        card.className = 'team-card';
+        card.innerHTML = `
+          <h2>🏆 ${team.name}</h2>
+          ${team.players.map(p => `<div class="player">- ${p.name} (${p.nation}) | ${p.position} | ⭐ ${p.rating}</div>`).join('')}
+        `;
+        container.appendChild(card);
+      });
+    }
+  </script>
+</body>
+</html>
