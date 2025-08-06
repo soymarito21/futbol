@@ -2,11 +2,126 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8" />
-  <title>Editor de Equipo</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Crear mi equipo</title>
+  <style>
+    body {
+      font-family: 'Poppins', sans-serif;
+      margin: 0;
+      padding: 2rem;
+      background: #0a0a0a;
+      color: white;
+    }
+
+    h1 {
+      text-align: center;
+      color: #00ff88;
+      margin-bottom: 2rem;
+    }
+
+    input, select, button {
+      padding: 10px;
+      margin: 10px 0;
+      border-radius: 8px;
+      border: none;
+      font-size: 1rem;
+      width: 100%;
+      max-width: 400px;
+    }
+
+    button {
+      background: #00ff88;
+      color: black;
+      cursor: pointer;
+      transition: 0.3s;
+    }
+
+    button:hover {
+      background: #00cc6a;
+    }
+
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .player-list {
+      margin-top: 2rem;
+      max-width: 500px;
+      margin-inline: auto;
+    }
+
+    .player-card {
+      background: #1a1a1a;
+      padding: 10px;
+      margin: 10px 0;
+      border-radius: 8px;
+      display: flex;
+      justify-content: space-between;
+    }
+  </style>
 </head>
 <body>
-  <h1>Editor de equipos en construcción ⚙️</h1>
-  <p>Pronto podrás crear y personalizar tu equipo aquí.</p>
-  <a href="index.html">← Volver a inicio</a>
+  <h1>⚽ Crear mi equipo</h1>
+
+  <div class="form-group">
+    <input type="text" id="teamName" placeholder="Nombre del equipo" />
+
+    <input type="text" id="playerName" placeholder="Nombre del jugador" />
+    <input type="text" id="playerNation" placeholder="Nacionalidad" />
+    <input type="number" id="playerRating" placeholder="Valoración (1-100)" />
+
+    <button onclick="addPlayer()">Añadir jugador</button>
+  </div>
+
+  <div class="player-list" id="playerList">
+    <!-- Aquí aparecen los jugadores añadidos -->
+  </div>
+
+  <script>
+    const players = [];
+
+    function addPlayer() {
+      const name = document.getElementById('playerName').value;
+      const nation = document.getElementById('playerNation').value;
+      const rating = document.getElementById('playerRating').value;
+
+      if (!name || !nation || !rating) {
+        alert("Por favor, completa todos los campos.");
+        return;
+      }
+
+      const player = { name, nation, rating };
+      players.push(player);
+      renderPlayers();
+
+      // Limpiar inputs
+      document.getElementById('playerName').value = "";
+      document.getElementById('playerNation').value = "";
+      document.getElementById('playerRating').value = "";
+    }
+
+    function renderPlayers() {
+      const list = document.getElementById('playerList');
+      list.innerHTML = "";
+
+      players.forEach((player, index) => {
+        const card = document.createElement('div');
+        card.className = 'player-card';
+        card.innerHTML = `
+          <span>${player.name} (${player.nation}) - ⭐ ${player.rating}</span>
+          <button onclick="removePlayer(${index})">❌</button>
+        `;
+        list.appendChild(card);
+      });
+    }
+
+    function removePlayer(index) {
+      players.splice(index, 1);
+      renderPlayers();
+    }
+  </script>
 </body>
 </html>
+
