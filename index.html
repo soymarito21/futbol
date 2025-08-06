@@ -1,87 +1,46 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Fantasy Team Builder</title>
-  <style>
-    @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@600&display=swap');
-
-    * {
-      margin: 0; padding: 0; box-sizing: border-box;
-    }
-
-    body, html {
-      height: 100%;
-      font-family: 'Poppins', sans-serif;
-      overflow: hidden;
-    }
-
-    /* ✅ Fondo de fútbol real */
-    body {
-      background: url('https://media.istockphoto.com/id/1410656746/es/foto/vista-digital-del-estadio-de-fútbol-iluminada-por-focos-azules-y-campo-de-césped-verde-vacío.jpg?s=612x612&w=0&k=20&c=Ksm31Usl0JtttYLm8Seh6QOQMiIClZkOIKuj1FXeb_c=') no-repeat center center fixed;
-      background-size: cover;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      flex-direction: column;
-      text-align: center;
-      padding: 20px;
-      color: #00ff88;
-      text-shadow: 0 0 15px #00ff88;
-    }
-
-    h1 {
-      font-size: 4rem;
-      margin-bottom: 20px;
-      letter-spacing: 2px;
-    }
-
-    p {
-      font-size: 1.5rem;
-      max-width: 600px;
-      margin-bottom: 40px;
-      color: #a0ffbb;
-    }
-
-    a.btn {
-      text-decoration: none;
-      color: #000;
-      background: linear-gradient(135deg, #00ff88, #0077ff);
-      padding: 15px 60px;
-      border-radius: 50px;
-      font-weight: 700;
-      font-size: 1.3rem;
-      box-shadow: 0 0 25px #00ff88;
-      transition: all 0.3s ease;
-    }
-
-    a.btn:hover {
-      background: linear-gradient(135deg, #0077ff, #00ff88);
-      box-shadow: 0 0 50px #0077ff;
-      transform: scale(1.05);
-    }
-
-    @media (max-width: 600px) {
-      h1 {
-        font-size: 2.5rem;
-      }
-      p {
-        font-size: 1.1rem;
-        padding: 0 10px;
-      }
-      a.btn {
-        padding: 12px 40px;
-        font-size: 1rem;
-      }
-    }
-  </style>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Mi App Fútbol</title>
+<style>
+  body {
+    font-family: 'Poppins', sans-serif;
+    background: url('https://images.unsplash.com/photo-1508609349937-5ec4ae374ebf?auto=format&fit=crop&w=1350&q=80') no-repeat center center fixed;
+    background-size: cover;
+    color: white;
+    margin: 0; padding: 0;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-shadow: 0 0 10px black;
+  }
+  h1 {
+    font-size: 3rem;
+    margin-bottom: 20px;
+  }
+  a {
+    font-size: 1.5rem;
+    background: #00ff88;
+    color: black;
+    padding: 1rem 2rem;
+    border-radius: 10px;
+    text-decoration: none;
+    font-weight: bold;
+  }
+  a:hover {
+    background: #00cc6a;
+  }
+</style>
 </head>
 <body>
-  <h1>Fantasy Team Builder ⚽</h1>
-  <p>Crea tu equipo ideal, ajusta valoraciones y desafía a otros en enfrentamientos épicos.</p>
-  <a href="editor.html" class="btn">Crear mi equipo</a>
+  <h1>⚽ Crea y enfrenta tu equipo</h1>
+  <a href="editor.html">Crear / Editar Equipos</a>
 </body>
 </html>
+
 
 
