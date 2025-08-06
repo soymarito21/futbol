@@ -1,280 +1,157 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Mis Equipos - Editar</title>
-  <style>
-    body {
-      font-family: 'Poppins', sans-serif;
-      margin: 0;
-      padding: 2rem;
-      background: #0a0a0a;
-      color: white;
-    }
-
-    h1 {
-      text-align: center;
-      color: #00ff88;
-      margin-bottom: 2rem;
-    }
-
-    .team {
-      background: #1a1a1a;
-      margin-bottom: 2rem;
-      padding: 1rem;
-      border-radius: 10px;
-    }
-
-    .team input[type="text"], .team input[type="number"] {
-      width: calc(100% - 22px);
-      margin-bottom: 5px;
-      padding: 6px;
-      border-radius: 6px;
-      border: none;
-      font-size: 1rem;
-    }
-
-    .players-list {
-      margin-top: 10px;
-      border-top: 1px solid #333;
-      padding-top: 10px;
-    }
-
-    .player-item {
-      display: flex;
-      gap: 8px;
-      align-items: center;
-      margin-bottom: 8px;
-    }
-
-    .player-item input {
-      flex: 1;
-    }
-
-    button {
-      background: #00ff88;
-      border: none;
-      color: black;
-      padding: 8px 12px;
-      border-radius: 6px;
-      cursor: pointer;
-      transition: 0.3s;
-    }
-
-    button:hover {
-      background: #00cc6a;
-    }
-
-    .btn-delete {
-      background: #ff4444;
-      color: white;
-      padding: 6px 10px;
-      border-radius: 6px;
-      cursor: pointer;
-      border: none;
-    }
-
-    .btn-delete:hover {
-      background: #cc0000;
-    }
-
-    .back-link {
-      display: block;
-      text-align: center;
-      margin-top: 20px;
-      color: #00ff88;
-      text-decoration: none;
-    }
-
-    .add-player-btn {
-      margin-top: 10px;
-    }
-  </style>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Mis Equipos Guardados</title>
+<style>
+  body {
+    font-family: 'Poppins', sans-serif;
+    background: #0a0a0a;
+    color: white;
+    margin: 0; padding: 2rem;
+  }
+  h1 {
+    color: #00ff88;
+    text-align: center;
+  }
+  .team {
+    background: #1a1a1a;
+    border-radius: 8px;
+    margin: 1rem auto;
+    max-width: 600px;
+    padding: 1rem;
+  }
+  .team-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  button {
+    background: #00ff88;
+    border: none;
+    border-radius: 5px;
+    padding: 5px 10px;
+    cursor: pointer;
+    margin-left: 5px;
+  }
+  button.delete {
+    background: #ff4444;
+  }
+  .player {
+    margin-left: 10px;
+  }
+  #user-info {
+    text-align: center;
+    margin-bottom: 20px;
+  }
+  #btnLogout {
+    background: red;
+    color: white;
+    width: auto;
+    padding: 5px 10px;
+    border-radius: 5px;
+    cursor: pointer;
+    margin-top: 5px;
+  }
+</style>
 </head>
 <body>
-  <h1>📋 Mis Equipos - Editar</h1>
-  <div id="teamsContainer">Cargando equipos...</div>
+<h1>Mis Equipos Guardados</h1>
+<div id="user-info">
+  <button id="btnLogin">Iniciar sesión con Google</button>
+</div>
 
-  <a class="back-link" href="editor.html">⬅️ Volver al editor</a>
+<div id="teamsContainer"></div>
 
-  <script type="module">
-    import {
-      auth, db, provider, signInWithPopup,
-      collection, getDocs, doc, updateDoc, deleteDoc
-    } from './firebase.js';
+<script type="module">
+  import { auth, provider, signInWithPopup, signOut, onAuthStateChanged, db, collection, getDocs, doc, updateDoc, deleteDoc, query, where } from './firebase.js';
 
-    const teamsContainer = document.getElementById("teamsContainer");
+  const userInfo = document.getElementById('user-info');
+  const btnLogin = document.getElementById('btnLogin');
+  const teamsContainer = document.getElementById('teamsContainer');
 
-    let user;
-    let teams = [];  // Array con equipos + id Firestore
+  let currentUser = null;
 
-    // Inicia sesión y carga equipos
-    async function init() {
-      try {
-        const result = await signInWithPopup(auth, provider);
-        user = result.user;
-
-        await loadTeams();
-      } catch (e) {
-        console.error("Error al iniciar sesión:", e);
-        teamsContainer.innerHTML = "❌ Error al iniciar sesión.";
-      }
+  btnLogin.onclick = async () => {
+    try {
+      const result = await signInWithPopup(auth, provider);
+      currentUser = result.user;
+      loadTeams();
+    } catch (e) {
+      alert("Error al iniciar sesión: " + e.message);
     }
+  };
 
-    async function loadTeams() {
-      const teamsRef = collection(db, "usuarios", user.uid, "equipos");
-      const snapshot = await getDocs(teamsRef);
+  onAuthStateChanged(auth, user => {
+    if (user) {
+      currentUser = user;
+      userInfo.innerHTML = `
+        <p>👤 Hola, ${user.displayName}</p>
+        <button id="btnLogout">Cerrar sesión</button>
+      `;
+      document.getElementById('btnLogout').onclick = () => signOut(auth);
+      loadTeams();
+    } else {
+      currentUser = null;
+      userInfo.innerHTML = `<button id="btnLogin">Iniciar sesión con Google</button>`;
+      document.getElementById('btnLogin').onclick = btnLogin.onclick;
+      teamsContainer.innerHTML = '';
+    }
+  });
 
-      if (snapshot.empty) {
-        teamsContainer.innerHTML = "❌ No tienes equipos guardados aún.";
+  async function loadTeams() {
+    if (!currentUser) return;
+    teamsContainer.innerHTML = '<p>Cargando equipos...</p>';
+    try {
+      const q = query(collection(db, "teams"), where("userId", "==", currentUser.uid));
+      const querySnapshot = await getDocs(q);
+      if (querySnapshot.empty) {
+        teamsContainer.innerHTML = '<p>No tienes equipos guardados.</p>';
         return;
       }
-
-      teams = snapshot.docs.map(docSnap => ({ id: docSnap.id, data: docSnap.data() }));
-
-      renderTeams();
-    }
-
-    function renderTeams() {
-      teamsContainer.innerHTML = "";
-
-      teams.forEach((team, idx) => {
-        const div = document.createElement("div");
-        div.className = "team";
-
-        div.innerHTML = `
-          <input type="text" value="${escapeHtml(team.data.nombre)}" placeholder="Nombre del equipo" id="teamName-${team.id}" />
-          <button class="btn-delete" data-id="${team.id}">Eliminar equipo</button>
-          <div class="players-list" id="playersList-${team.id}"></div>
-          <button class="add-player-btn" data-id="${team.id}">+ Añadir jugador</button>
-          <button class="save-team-btn" data-id="${team.id}">💾 Guardar cambios</button>
+      teamsContainer.innerHTML = '';
+      querySnapshot.forEach(docSnap => {
+        const team = docSnap.data();
+        const teamDiv = document.createElement('div');
+        teamDiv.className = 'team';
+        teamDiv.innerHTML = `
+          <div class="team-header">
+            <strong>${team.teamName}</strong>
+            <div>
+              <button onclick="editTeam('${docSnap.id}')">✏️ Editar</button>
+              <button class="delete" onclick="deleteTeam('${docSnap.id}')">🗑️ Borrar</button>
+            </div>
+          </div>
+          <div>
+            ${team.players.map(p => `<div class="player">${p.name} | ${p.nation} | ${p.position} | ⭐ ${p.rating}</div>`).join('')}
+          </div>
         `;
-
-        teamsContainer.appendChild(div);
-
-        renderPlayers(team.id, team.data.jugadores);
-
-        // Eventos
-        div.querySelector(".btn-delete").onclick = () => deleteTeam(team.id);
-        div.querySelector(".add-player-btn").onclick = () => addPlayer(team.id);
-        div.querySelector(".save-team-btn").onclick = () => saveTeam(team.id);
+        teamsContainer.appendChild(teamDiv);
       });
+    } catch (e) {
+      teamsContainer.innerHTML = `<p>Error cargando equipos: ${e.message}</p>`;
     }
+  }
 
-    function renderPlayers(teamId, jugadores) {
-      const container = document.getElementById(`playersList-${teamId}`);
-      container.innerHTML = "";
+  window.editTeam = async (id) => {
+    // Para editar, simplemente abrimos editor.html con el id como query param
+    window.location.href = `editor.html?teamId=${id}`;
+  };
 
-      jugadores.forEach((p, i) => {
-        const playerDiv = document.createElement("div");
-        playerDiv.className = "player-item";
-        playerDiv.innerHTML = `
-          <input type="text" placeholder="Nombre" value="${escapeHtml(p.name)}" data-type="name" data-index="${i}" data-team="${teamId}" />
-          <input type="text" placeholder="Nacionalidad" value="${escapeHtml(p.nation)}" data-type="nation" data-index="${i}" data-team="${teamId}" />
-          <input type="text" placeholder="Posición" value="${escapeHtml(p.position)}" data-type="position" data-index="${i}" data-team="${teamId}" />
-          <input type="number" placeholder="Valoración" min="1" max="100" value="${p.rating}" data-type="rating" data-index="${i}" data-team="${teamId}" />
-          <button class="btn-delete" data-index="${i}" data-team="${teamId}">❌</button>
-        `;
-        container.appendChild(playerDiv);
-
-        // Evento eliminar jugador
-        playerDiv.querySelector("button").onclick = () => removePlayer(teamId, i);
-      });
-
-      // Añadir listener inputs para actualizar datos en teams[]
-      container.querySelectorAll("input").forEach(input => {
-        input.oninput = (e) => {
-          const { type, index, team } = e.target.dataset;
-          const idx = Number(index);
-          const tIndex = teams.findIndex(t => t.id === team);
-          if (tIndex < 0) return;
-
-          teams[tIndex].data.jugadores[idx][type] = e.target.value;
-        };
-      });
+  window.deleteTeam = async (id) => {
+    if (!confirm('¿Seguro que quieres borrar este equipo?')) return;
+    try {
+      await deleteDoc(doc(db, "teams", id));
+      alert('Equipo borrado');
+      loadTeams();
+    } catch (e) {
+      alert('Error borrando equipo: ' + e.message);
     }
-
-    function addPlayer(teamId) {
-      const tIndex = teams.findIndex(t => t.id === teamId);
-      if (tIndex < 0) return;
-
-      teams[tIndex].data.jugadores.push({
-        name: "",
-        nation: "",
-        position: "",
-        rating: 1
-      });
-
-      renderPlayers(teamId, teams[tIndex].data.jugadores);
-    }
-
-    function removePlayer(teamId, playerIndex) {
-      const tIndex = teams.findIndex(t => t.id === teamId);
-      if (tIndex < 0) return;
-
-      teams[tIndex].data.jugadores.splice(playerIndex, 1);
-      renderPlayers(teamId, teams[tIndex].data.jugadores);
-    }
-
-    async function saveTeam(teamId) {
-      const tIndex = teams.findIndex(t => t.id === teamId);
-      if (tIndex < 0) return;
-
-      const inputName = document.getElementById(`teamName-${teamId}`);
-      const nombre = inputName.value.trim();
-
-      if (!nombre) {
-        alert("El equipo debe tener un nombre");
-        return;
-      }
-
-      // Validar jugadores: no vacíos y rating entre 1 y 100
-      const jugadores = teams[tIndex].data.jugadores;
-      for (const p of jugadores) {
-        if (!p.name.trim() || !p.nation.trim() || !p.position.trim() || !(p.rating >= 1 && p.rating <= 100)) {
-          alert("Completa todos los datos válidos de los jugadores");
-          return;
-        }
-      }
-
-      teams[tIndex].data.nombre = nombre;
-
-      try {
-        await updateDoc(doc(db, "usuarios", user.uid, "equipos", teamId), teams[tIndex].data);
-        alert("✅ Cambios guardados");
-      } catch (e) {
-        alert("Error guardando cambios");
-        console.error(e);
-      }
-    }
-
-    async function deleteTeam(teamId) {
-      if (!confirm("¿Seguro que quieres eliminar este equipo?")) return;
-
-      try {
-        await deleteDoc(doc(db, "usuarios", user.uid, "equipos", teamId));
-        teams = teams.filter(t => t.id !== teamId);
-        renderTeams();
-      } catch (e) {
-        alert("Error eliminando equipo");
-        console.error(e);
-      }
-    }
-
-    // Escapa texto para evitar problemas HTML
-    function escapeHtml(text) {
-      return text
-        .replace(/&/g, "&amp;")
-        .replace(/</g, "&lt;")
-        .replace(/>/g, "&gt;")
-        .replace(/"/g, "&quot;")
-        .replace(/'/g, "&#039;");
-    }
-
-    init();
-  </script>
+  };
+</script>
 </body>
 </html>
+
 
 
