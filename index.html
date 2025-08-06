@@ -17,25 +17,18 @@
       overflow: hidden;
     }
 
-    /* Fondo con animación de movimiento suave */
+    /* ✅ Fondo de fútbol real */
     body {
       background: url('https://cdn.pixabay.com/photo/2016/11/21/15/46/football-1848977_1280.jpg') no-repeat center center fixed;
       background-size: cover;
-      animation: backgroundMove 30s linear infinite;
       display: flex;
       justify-content: center;
       align-items: center;
+      flex-direction: column;
+      text-align: center;
+      padding: 20px;
       color: #00ff88;
       text-shadow: 0 0 15px #00ff88;
-      flex-direction: column;
-      padding: 20px;
-      text-align: center;
-    }
-
-    @keyframes backgroundMove {
-      0% { background-position: center top; }
-      50% { background-position: center bottom; }
-      100% { background-position: center top; }
     }
 
     h1 {
@@ -49,7 +42,6 @@
       max-width: 600px;
       margin-bottom: 40px;
       color: #a0ffbb;
-      text-shadow: 0 0 10px #00ff88;
     }
 
     a.btn {
@@ -62,7 +54,6 @@
       font-size: 1.3rem;
       box-shadow: 0 0 25px #00ff88;
       transition: all 0.3s ease;
-      user-select: none;
     }
 
     a.btn:hover {
@@ -71,7 +62,6 @@
       transform: scale(1.05);
     }
 
-    /* Responsive */
     @media (max-width: 600px) {
       h1 {
         font-size: 2.5rem;
@@ -89,7 +79,7 @@
 </head>
 <body>
   <h1>Fantasy Team Builder ⚽</h1>
-  <p>Crea tu equipo ideal, ajusta valoraciones y desafía a otros en emocionantes enfrentamientos.</p>
+  <p>Crea tu equipo ideal, ajusta valoraciones y desafía a otros en enfrentamientos épicos.</p>
   <a href="editor.html" class="btn">Crear mi equipo</a>
 </body>
 </html>
