@@ -1,217 +1,192 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Crear / Editar Equipos</title>
-<style>
-  body {
-    font-family: 'Poppins', sans-serif;
-    background: #0a0a0a;
-    color: white;
-    margin: 0; padding: 2rem;
-  }
-  h1 {
-    color: #00ff88;
-    text-align: center;
-  }
-  button, input, select {
-    padding: 10px;
-    margin: 5px 0;
-    border-radius: 8px;
-    border: none;
-    font-size: 1rem;
-  }
-  button {
-    background: #00ff88;
-    color: black;
-    cursor: pointer;
-    width: 100%;
-    max-width: 400px;
-  }
-  button:hover {
-    background: #00cc6a;
-  }
-  .form-group {
-    max-width: 400px;
-    margin: auto;
-  }
-  .player-list {
-    max-width: 500px;
-    margin: 2rem auto;
-  }
-  .player-card {
-    background: #1a1a1a;
-    padding: 10px;
-    margin: 5px 0;
-    border-radius: 8px;
-    display: flex;
-    justify-content: space-between;
-  }
-  #user-info {
-    text-align: center;
-    margin-bottom: 20px;
-  }
-  #btnLogout {
-    background: red;
-    color: white;
-    width: auto;
-    padding: 5px 10px;
-    border-radius: 5px;
-    cursor: pointer;
-    margin-top: 5px;
-  }
-</style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Crear mi equipo</title>
+  <style>
+    body {
+      font-family: 'Poppins', sans-serif;
+      margin: 0;
+      padding: 2rem;
+      background: #0a0a0a;
+      color: white;
+    }
+
+    h1 {
+      text-align: center;
+      color: #00ff88;
+      margin-bottom: 2rem;
+    }
+
+    input, button {
+      padding: 10px;
+      margin: 10px 0;
+      border-radius: 8px;
+      border: none;
+      font-size: 1rem;
+      width: 100%;
+      max-width: 400px;
+    }
+
+    button {
+      background: #00ff88;
+      color: black;
+      cursor: pointer;
+      transition: 0.3s;
+    }
+
+    button:hover {
+      background: #00cc6a;
+    }
+
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .player-list {
+      margin-top: 2rem;
+      max-width: 500px;
+      margin-inline: auto;
+    }
+
+    .player-card {
+      background: #1a1a1a;
+      padding: 10px;
+      margin: 10px 0;
+      border-radius: 8px;
+      display: flex;
+      justify-content: space-between;
+    }
+
+    #form-section {
+      display: none;
+    }
+
+    #user-info {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+  </style>
 </head>
 <body>
-<h1>⚽ Crear y Guardar Equipos</h1>
 
-<div id="user-info">
-  <button id="btnLogin">Iniciar sesión con Google</button>
-</div>
+  <h1>⚽ Crear mi equipo</h1>
 
-<div class="form-group" id="form-section" style="display:none;">
-  <input type="text" id="teamName" placeholder="Nombre del equipo" />
-  <input type="text" id="playerName" placeholder="Nombre del jugador" />
-  <input type="text" id="playerNation" placeholder="Nacionalidad" />
-  <input type="text" id="playerPosition" placeholder="Posición (Ej: Portero, Defensa...)" />
-  <input type="number" id="playerRating" placeholder="Valoración (1-100)" min="1" max="100" />
-  <button id="btnAddPlayer">Añadir jugador</button>
-  <button id="btnSaveTeam">Guardar equipo</button>
-  <a href="mis-equipos.html" style="color:#00ff88; display: block; margin-top: 10px;">🔁 Ver mis equipos guardados</a>
-</div>
+  <div id="user-info"></div>
 
-<div class="player-list" id="playerList"></div>
+  <div id="form-section">
+    <div class="form-group">
+      <input type="text" id="teamName" placeholder="Nombre del equipo" />
+      <input type="text" id="playerName" placeholder="Nombre del jugador" />
+      <input type="text" id="playerNation" placeholder="Nacionalidad" />
+      <input type="text" id="playerPosition" placeholder="Posición (Ej: Portero, Defensa...)" />
+      <input type="number" id="playerRating" placeholder="Valoración (1-100)" />
+      <button onclick="addPlayer()">Añadir jugador</button>
+      <button onclick="saveTeam()">Guardar equipo</button>
+      <a href="mis-equipos.html" style="color:#00ff88; margin-top:15px;">🔁 Ver mis equipos guardados</a>
+    </div>
 
-<script type="module">
-  import { auth, provider, signInWithPopup, signOut, onAuthStateChanged, db, collection, addDoc, getDocs, doc, updateDoc, deleteDoc, query, where } from './firebase.js';
+    <div class="player-list" id="playerList"></div>
+  </div>
 
-  let players = [];
-  let currentUser = null;
+  <!-- AUTHPRO: LOGIN -->
+  <script src="https://www.authpro.com/js/auth.js"></script>
+  <script>
+    var ap = new AuthPro('soymarito21');
 
-  const userInfo = document.getElementById('user-info');
-  const formSection = document.getElementById('form-section');
-  const btnLogin = document.getElementById('btnLogin');
-  const teamNameInput = document.getElementById('teamName');
-  const playerNameInput = document.getElementById('playerName');
-  const playerNationInput = document.getElementById('playerNation');
-  const playerPositionInput = document.getElementById('playerPosition');
-  const playerRatingInput = document.getElementById('playerRating');
-  const playerList = document.getElementById('playerList');
-  const btnAddPlayer = document.getElementById('btnAddPlayer');
-  const btnSaveTeam = document.getElementById('btnSaveTeam');
+    ap.onlogin = function(user) {
+      // Guardar el nombre del usuario en localStorage
+      localStorage.setItem('loggedUser', user.name);
 
-  btnLogin.onclick = async () => {
-    try {
-      const result = await signInWithPopup(auth, provider);
-      currentUser = result.user;
-    } catch (e) {
-      alert("Error al iniciar sesión: " + e.message);
-    }
-  };
-
-  onAuthStateChanged(auth, user => {
-    if (user) {
-      currentUser = user;
-      userInfo.innerHTML = `
-        <p>👤 Hola, ${user.displayName}</p>
-        <button id="btnLogout">Cerrar sesión</button>
+      // Mostrar sección de formulario
+      document.getElementById('form-section').style.display = 'block';
+      document.getElementById('user-info').innerHTML = `
+        <p>Bienvenido, <strong>${user.name}</strong> | <a href="#" onclick="logout()">Cerrar sesión</a></p>
       `;
-      formSection.style.display = 'block';
-      document.getElementById('btnLogout').onclick = () => signOut(auth);
-    } else {
-      currentUser = null;
-      userInfo.innerHTML = `<button id="btnLogin">Iniciar sesión con Google</button>`;
-      document.getElementById('btnLogin').onclick = btnLogin.onclick;
-      formSection.style.display = 'none';
-      players = [];
+    }
+
+    ap.onlogout = function() {
+      localStorage.removeItem('loggedUser');
+      location.reload();
+    }
+
+    function logout() {
+      ap.logout();
+    }
+  </script>
+
+  <!-- SCRIPT PRINCIPAL -->
+  <script>
+    const loggedUser = localStorage.getItem('loggedUser');
+    const players = [];
+
+    if (!loggedUser) {
+      document.getElementById('form-section').style.display = 'none';
+    }
+
+    function addPlayer() {
+      const name = document.getElementById('playerName').value;
+      const nation = document.getElementById('playerNation').value;
+      const position = document.getElementById('playerPosition').value;
+      const rating = document.getElementById('playerRating').value;
+
+      if (!name || !nation || !position || !rating) {
+        alert("Por favor, completa todos los campos.");
+        return;
+      }
+
+      players.push({ name, nation, position, rating });
       renderPlayers();
-    }
-  });
 
-  btnAddPlayer.onclick = () => {
-    const name = playerNameInput.value.trim();
-    const nation = playerNationInput.value.trim();
-    const position = playerPositionInput.value.trim();
-    const rating = parseInt(playerRatingInput.value);
-
-    if (!name || !nation || !position || !rating || rating < 1 || rating > 100) {
-      alert('Completa todos los campos correctamente.');
-      return;
+      document.getElementById('playerName').value = "";
+      document.getElementById('playerNation').value = "";
+      document.getElementById('playerPosition').value = "";
+      document.getElementById('playerRating').value = "";
     }
 
-    players.push({ name, nation, position, rating });
-    renderPlayers();
+    function renderPlayers() {
+      const list = document.getElementById('playerList');
+      list.innerHTML = "";
 
-    playerNameInput.value = '';
-    playerNationInput.value = '';
-    playerPositionInput.value = '';
-    playerRatingInput.value = '';
-  };
-
-  function renderPlayers() {
-    playerList.innerHTML = '';
-    players.forEach((p, i) => {
-      const div = document.createElement('div');
-      div.className = 'player-card';
-      div.innerHTML = `
-        <span>${p.name} | ${p.nation} | ${p.position} | ⭐ ${p.rating}</span>
-        <button onclick="removePlayer(${i})">❌</button>
-      `;
-      playerList.appendChild(div);
-    });
-  }
-
-  window.removePlayer = (index) => {
-    players.splice(index, 1);
-    renderPlayers();
-  };
-
-  btnSaveTeam.onclick = async () => {
-    const teamName = teamNameInput.value.trim();
-    if (!teamName) {
-      alert('Pon un nombre al equipo.');
-      return;
-    }
-    if (players.length === 0) {
-      alert('Añade al menos un jugador.');
-      return;
-    }
-    if (!currentUser) {
-      alert('Inicia sesión para guardar el equipo.');
-      return;
-    }
-    try {
-      await addDoc(collection(db, "teams"), {
-        userId: currentUser.uid,
-        teamName,
-        players,
-        createdAt: new Date()
+      players.forEach((player, index) => {
+        const card = document.createElement('div');
+        card.className = 'player-card';
+        card.innerHTML = `
+          <span>${player.name} | ${player.nation} | ${player.position} | ⭐ ${player.rating}</span>
+          <button onclick="removePlayer(${index})">❌</button>
+        `;
+        list.appendChild(card);
       });
-      alert('Equipo guardado con éxito!');
-      players = [];
-      renderPlayers();
-      teamNameInput.value = '';
-    } catch (e) {
-      alert('Error guardando equipo: ' + e.message);
     }
-  };
-<script src="https://www.authpro.com/js/auth.js"></script>
-<script>
-  var ap = new AuthPro('soymarito21');
 
-  ap.onlogin = function(user) {
-    // Aquí puedes usar el nombre de usuario para identificar al usuario en Firebase
-    localStorage.setItem('loggedUser', user.name); // Ej: soymarito
-    document.getElementById('form-section').style.display = 'block';
-    document.getElementById('user-info').innerHTML = `<p>Bienvenido, ${user.name}</p>`;
-  }
+    function removePlayer(index) {
+      players.splice(index, 1);
+      renderPlayers();
+    }
 
-  ap.onlogout = function() {
-    localStorage.removeItem('loggedUser');
-    location.reload();
-  }
-</script>
+    function saveTeam() {
+      const teamName = document.getElementById('teamName').value.trim();
+      if (!teamName || players.length === 0) {
+        alert("Pon un nombre al equipo y añade al menos un jugador.");
+        return;
+      }
+
+      const team = { name: teamName, players };
+      const savedTeams = JSON.parse(localStorage.getItem(`teams_${loggedUser}`)) || [];
+      savedTeams.push(team);
+      localStorage.setItem(`teams_${loggedUser}`, JSON.stringify(savedTeams));
+
+      alert("✅ ¡Equipo guardado!");
+
+      // Reset
+      players.length = 0;
+      renderPlayers();
+      document.getElementById('teamName').value = "";
+    }
+  </script>
+
 </body>
 </html>
-
