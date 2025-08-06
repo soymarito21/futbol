@@ -1,62 +1,107 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Mis Equipos</title>
   <style>
     body {
       font-family: 'Poppins', sans-serif;
+      margin: 0;
+      padding: 2rem;
       background: #0a0a0a;
       color: white;
-      padding: 2rem;
     }
+
     h1 {
       text-align: center;
       color: #00ff88;
       margin-bottom: 2rem;
     }
-    .team-card {
+
+    .team {
       background: #1a1a1a;
-      padding: 15px;
-      margin-bottom: 20px;
+      margin-bottom: 2rem;
+      padding: 1rem;
       border-radius: 10px;
     }
-    .team-card h2 {
-      margin-bottom: 10px;
+
+    .team h2 {
       color: #00cc6a;
     }
-    .player {
-      margin-left: 15px;
+
+    ul {
+      list-style: none;
+      padding-left: 0;
     }
-    a {
-      display: inline-block;
-      margin-top: 1rem;
+
+    li {
+      padding: 5px 0;
+      border-bottom: 1px solid #333;
+    }
+
+    .back-link {
+      display: block;
+      text-align: center;
+      margin-top: 20px;
       color: #00ff88;
+      text-decoration: none;
     }
   </style>
 </head>
 <body>
   <h1>📋 Mis Equipos Guardados</h1>
-  <div id="teamsContainer"></div>
-  <a href="editor.html">⬅ Volver al creador de equipos</a>
+  <div id="teamsContainer">Cargando equipos...</div>
 
-  <script>
-    const teams = JSON.parse(localStorage.getItem('teams')) || [];
-    const container = document.getElementById('teamsContainer');
+  <a class="back-link" href="editor.html">⬅️ Volver al editor</a>
 
-    if (teams.length === 0) {
-      container.innerHTML = "<p>No tienes equipos guardados.</p>";
-    } else {
-      teams.forEach(team => {
-        const card = document.createElement('div');
-        card.className = 'team-card';
-        card.innerHTML = `
-          <h2>🏆 ${team.name}</h2>
-          ${team.players.map(p => `<div class="player">- ${p.name} (${p.nation}) | ${p.position} | ⭐ ${p.rating}</div>`).join('')}
-        `;
-        container.appendChild(card);
-      });
+  <script type="module">
+    import { auth, db, provider, signInWithPopup, collection, getDocs } from './firebase.js';
+
+    const teamsContainer = document.getElementById("teamsContainer");
+
+    async function loadTeams() {
+      try {
+        const result = await signInWithPopup(auth, provider);
+        const user = result.user;
+
+        const teamsRef = collection(db, "usuarios", user.uid, "equipos");
+        const snapshot = await getDocs(teamsRef);
+
+        if (snapshot.empty) {
+          teamsContainer.innerHTML = "❌ No tienes equipos guardados aún.";
+          return;
+        }
+
+        teamsContainer.innerHTML = "";
+
+        snapshot.forEach(doc => {
+          const team = doc.data();
+          const div = document.createElement('div');
+          div.className = "team";
+
+          const title = document.createElement('h2');
+          title.textContent = team.nombre;
+
+          const list = document.createElement('ul');
+          team.jugadores.forEach(jugador => {
+            const li = document.createElement('li');
+            li.textContent = `${jugador.name} | ${jugador.nation} | ${jugador.position} | ⭐ ${jugador.rating}`;
+            list.appendChild(li);
+          });
+
+          div.appendChild(title);
+          div.appendChild(list);
+          teamsContainer.appendChild(div);
+        });
+      } catch (error) {
+        console.error("Error cargando equipos:", error);
+        teamsContainer.innerHTML = "❌ Error al cargar tus equipos.";
+      }
     }
+
+    loadTeams();
   </script>
 </body>
 </html>
+
