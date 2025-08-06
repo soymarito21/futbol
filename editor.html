@@ -12,12 +12,14 @@
       background: #0a0a0a;
       color: white;
     }
+
     h1 {
       text-align: center;
       color: #00ff88;
       margin-bottom: 2rem;
     }
-    input, select, button {
+
+    input, button {
       padding: 10px;
       margin: 10px 0;
       border-radius: 8px;
@@ -26,25 +28,30 @@
       width: 100%;
       max-width: 400px;
     }
+
     button {
       background: #00ff88;
       color: black;
       cursor: pointer;
       transition: 0.3s;
     }
+
     button:hover {
       background: #00cc6a;
     }
+
     .form-group {
       display: flex;
       flex-direction: column;
       align-items: center;
     }
+
     .player-list {
       margin-top: 2rem;
       max-width: 500px;
       margin-inline: auto;
     }
+
     .player-card {
       background: #1a1a1a;
       padding: 10px;
@@ -56,6 +63,7 @@
   </style>
 </head>
 <body>
+
   <h1>⚽ Crear mi equipo</h1>
 
   <div class="form-group">
@@ -71,82 +79,74 @@
 
   <div class="player-list" id="playerList"></div>
 
-  <script>
-    const players = [];
+  <!-- Firebase lógicas -->
+  <script type="module">
+    import { auth, db, provider, signInWithPopup, collection, addDoc } from './firebase.js';
 
-    function addPlayer() {
-      const name = document.getElementById('playerName').value;
-      const nation = document.getElementById('playerNation').value;
-      const position = document.getElementById('playerPosition').value;
-      const rating = document.getElementById('playerRating').value;
+    let players = [];
+
+    window.addPlayer = () => {
+      const name = playerName.value;
+      const nation = playerNation.value;
+      const position = playerPosition.value;
+      const rating = playerRating.value;
 
       if (!name || !nation || !position || !rating) {
-        alert("Por favor, completa todos los campos.");
+        alert("Completa todos los campos.");
         return;
       }
 
       players.push({ name, nation, position, rating });
+      playerName.value = playerNation.value = playerPosition.value = playerRating.value = '';
       renderPlayers();
+    };
 
-      document.getElementById('playerName').value = "";
-      document.getElementById('playerNation').value = "";
-      document.getElementById('playerPosition').value = "";
-      document.getElementById('playerRating').value = "";
-    }
+    window.removePlayer = (i) => {
+      players.splice(i, 1);
+      renderPlayers();
+    };
 
     function renderPlayers() {
-      const list = document.getElementById('playerList');
-      list.innerHTML = "";
-
-      players.forEach((player, index) => {
-        const card = document.createElement('div');
-        card.className = 'player-card';
-        card.innerHTML = `
-          <span>${player.name} | ${player.nation} | ${player.position} | ⭐ ${player.rating}</span>
-          <button onclick="removePlayer(${index})">❌</button>
+      playerList.innerHTML = "";
+      players.forEach((p, i) => {
+        const div = document.createElement('div');
+        div.className = "player-card";
+        div.innerHTML = `
+          ${p.name} | ${p.nation} | ${p.position} | ⭐ ${p.rating}
+          <button onclick="removePlayer(${i})">❌</button>
         `;
-        list.appendChild(card);
+        playerList.appendChild(div);
       });
     }
 
-    function removePlayer(index) {
-      players.splice(index, 1);
-      renderPlayers();
-    }
-
-    function saveTeam() {
-      const teamName = document.getElementById('teamName').value.trim();
+    window.saveTeam = async () => {
+      const teamName = teamNameInput.value;
       if (!teamName || players.length === 0) {
-        alert("Pon un nombre al equipo y añade al menos un jugador.");
+        alert("Pon un nombre y añade jugadores");
         return;
       }
 
-      const team = { name: teamName, players };
-      const savedTeams = JSON.parse(localStorage.getItem('teams')) || [];
-      savedTeams.push(team);
-      localStorage.setItem('teams', JSON.stringify(savedTeams));
+      const result = await signInWithPopup(auth, provider);
+      const user = result.user;
+
+      await addDoc(collection(db, "usuarios", user.uid, "equipos"), {
+        nombre: teamName,
+        jugadores: players
+      });
 
       alert("✅ ¡Equipo guardado!");
-      // reset
-      players.length = 0;
+      players = [];
       renderPlayers();
-      document.getElementById('teamName').value = "";
-    }
+      teamNameInput.value = '';
+    };
+
+    const teamNameInput = document.getElementById('teamName');
+    const playerName = document.getElementById('playerName');
+    const playerNation = document.getElementById('playerNation');
+    const playerPosition = document.getElementById('playerPosition');
+    const playerRating = document.getElementById('playerRating');
+    const playerList = document.getElementById('playerList');
   </script>
 </body>
 </html>
 
-<script src="https://www.gstatic.com/firebasejs/9.x.x/firebase-app.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.x.x/firebase-auth.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.x.x/firebase-firestore.js"></script>
-<script>
-  const firebaseConfig = {
-    apiKey: "...",
-    authDomain: "...",
-    projectId: "...",
-    // demás claves…
-  };
-  firebase.initializeApp(firebaseConfig);
-  const auth = firebase.auth();
-  const db = firebase.firestore();
-</script>
