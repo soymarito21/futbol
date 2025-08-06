@@ -196,14 +196,21 @@
       alert('Error guardando equipo: ' + e.message);
     }
   };
-<!-- Al final de editor.html -->
 <script src="https://www.authpro.com/js/auth.js"></script>
 <script>
   var ap = new AuthPro('soymarito21');
-</script>
-</body>
-</html>
 
+  ap.onlogin = function(user) {
+    // Aquí puedes usar el nombre de usuario para identificar al usuario en Firebase
+    localStorage.setItem('loggedUser', user.name); // Ej: soymarito
+    document.getElementById('form-section').style.display = 'block';
+    document.getElementById('user-info').innerHTML = `<p>Bienvenido, ${user.name}</p>`;
+  }
+
+  ap.onlogout = function() {
+    localStorage.removeItem('loggedUser');
+    location.reload();
+  }
 </script>
 </body>
 </html>
