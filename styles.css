@@ -1,1 +1,67 @@
+body {
+  font-family: 'Poppins', sans-serif;
+  background: #0a0a0a;
+  color: white;
+  margin: 0; 
+  padding: 2rem;
+}
+
+h1 {
+  color: #00ff88;
+  text-align: center;
+}
+
+button, input, select {
+  padding: 10px;
+  margin: 5px 0;
+  border-radius: 8px;
+  border: none;
+  font-size: 1rem;
+}
+
+button {
+  background: #00ff88;
+  color: black;
+  cursor: pointer;
+  width: 100%;
+  max-width: 400px;
+}
+
+button:hover {
+  background: #00cc6a;
+}
+
+.form-group {
+  max-width: 400px;
+  margin: auto;
+}
+
+.player-list {
+  max-width: 500px;
+  margin: 2rem auto;
+}
+
+.player-card {
+  background: #1a1a1a;
+  padding: 10px;
+  margin: 5px 0;
+  border-radius: 8px;
+  display: flex;
+  justify-content: space-between;
+}
+
+#user-info {
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+#btnLogout {
+  background: red;
+  color: white;
+  width: auto;
+  padding: 5px 10px;
+  border-radius: 5px;
+  cursor: pointer;
+  margin-top: 5px;
+}
 
