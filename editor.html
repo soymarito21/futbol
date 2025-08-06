@@ -12,13 +12,11 @@
       background: #0a0a0a;
       color: white;
     }
-
     h1 {
       text-align: center;
       color: #00ff88;
       margin-bottom: 2rem;
     }
-
     input, select, button {
       padding: 10px;
       margin: 10px 0;
@@ -28,30 +26,25 @@
       width: 100%;
       max-width: 400px;
     }
-
     button {
       background: #00ff88;
       color: black;
       cursor: pointer;
       transition: 0.3s;
     }
-
     button:hover {
       background: #00cc6a;
     }
-
     .form-group {
       display: flex;
       flex-direction: column;
       align-items: center;
     }
-
     .player-list {
       margin-top: 2rem;
       max-width: 500px;
       margin-inline: auto;
     }
-
     .player-card {
       background: #1a1a1a;
       padding: 10px;
@@ -67,17 +60,16 @@
 
   <div class="form-group">
     <input type="text" id="teamName" placeholder="Nombre del equipo" />
-
     <input type="text" id="playerName" placeholder="Nombre del jugador" />
     <input type="text" id="playerNation" placeholder="Nacionalidad" />
+    <input type="text" id="playerPosition" placeholder="Posición (Ej: Portero, Defensa...)" />
     <input type="number" id="playerRating" placeholder="Valoración (1-100)" />
-
     <button onclick="addPlayer()">Añadir jugador</button>
+    <button onclick="saveTeam()">Guardar equipo</button>
+    <a href="mis-equipos.html" style="color:#00ff88; margin-top:15px;">🔁 Ver mis equipos guardados</a>
   </div>
 
-  <div class="player-list" id="playerList">
-    <!-- Aquí aparecen los jugadores añadidos -->
-  </div>
+  <div class="player-list" id="playerList"></div>
 
   <script>
     const players = [];
@@ -85,20 +77,20 @@
     function addPlayer() {
       const name = document.getElementById('playerName').value;
       const nation = document.getElementById('playerNation').value;
+      const position = document.getElementById('playerPosition').value;
       const rating = document.getElementById('playerRating').value;
 
-      if (!name || !nation || !rating) {
+      if (!name || !nation || !position || !rating) {
         alert("Por favor, completa todos los campos.");
         return;
       }
 
-      const player = { name, nation, rating };
-      players.push(player);
+      players.push({ name, nation, position, rating });
       renderPlayers();
 
-      // Limpiar inputs
       document.getElementById('playerName').value = "";
       document.getElementById('playerNation').value = "";
+      document.getElementById('playerPosition').value = "";
       document.getElementById('playerRating').value = "";
     }
 
@@ -110,7 +102,7 @@
         const card = document.createElement('div');
         card.className = 'player-card';
         card.innerHTML = `
-          <span>${player.name} (${player.nation}) - ⭐ ${player.rating}</span>
+          <span>${player.name} | ${player.nation} | ${player.position} | ⭐ ${player.rating}</span>
           <button onclick="removePlayer(${index})">❌</button>
         `;
         list.appendChild(card);
@@ -120,6 +112,25 @@
     function removePlayer(index) {
       players.splice(index, 1);
       renderPlayers();
+    }
+
+    function saveTeam() {
+      const teamName = document.getElementById('teamName').value.trim();
+      if (!teamName || players.length === 0) {
+        alert("Pon un nombre al equipo y añade al menos un jugador.");
+        return;
+      }
+
+      const team = { name: teamName, players };
+      const savedTeams = JSON.parse(localStorage.getItem('teams')) || [];
+      savedTeams.push(team);
+      localStorage.setItem('teams', JSON.stringify(savedTeams));
+
+      alert("✅ ¡Equipo guardado!");
+      // reset
+      players.length = 0;
+      renderPlayers();
+      document.getElementById('teamName').value = "";
     }
   </script>
 </body>
